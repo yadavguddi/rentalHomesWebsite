@@ -6,6 +6,7 @@ const Listing = require ("./models/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
+const wrapAsync = require("./utils");
 
 main()
 .then(() => {
@@ -66,7 +67,7 @@ app.get("/listings/:id", async (req,res) => {
     res.render("listings/show.ejs" ,{listing});
 });
 
- app.post("/listings",async (req,res) => { 
+ app.post("/listings", wrapAsync(async (req,res) => { 
     
     // let {title,description,image,price,country,location} = req.body
     // const newListing = new Listing({
@@ -81,10 +82,10 @@ app.get("/listings/:id", async (req,res) => {
     // // Save the new listing to the database
     // await newListing.save();
 
-let newlisting =new Listing(req.body.listing);
-await newlisting.save();
-res.redirect("/listings");
-});
+    let newlisting =new Listing(req.body.listing);
+    await newlisting.save();
+    res.redirect("/listings");
+}));
 
 //edit route
 app.get("/listings/:id/edit", async (req,res) => {
@@ -108,3 +109,9 @@ let {id} = req.params;
  res.redirect("/listings")
 });
 console.log(Listing.image);
+
+//error handling middleware
+
+app.set((err,req,res,next) => {
+   res.send("something went wrong")
+})
