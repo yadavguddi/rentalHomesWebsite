@@ -47,9 +47,7 @@ async function main() {
     console.log(`I am listening at port ${port}`)
  });
 
-// app.get("/",(req,res) => {
-//     res.send("Working")
-// });
+
 
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname, "views"));
