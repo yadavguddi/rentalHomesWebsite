@@ -1,8 +1,8 @@
 
 if(process.env.NODE_ENV != "PRODUCTION"){
-    
+    require('dotenv').config();  
 }
-require('dotenv').config();
+
 // console.log(process.env.SECRET);
 
 const express = require("express");
@@ -25,9 +25,11 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user.js");
 const session = require("express-session");
+const MongoStore = require('connect-mongo');
 const flash = require("connect-flash");
-
-
+const multer = require("multer")
+const dbUrls = "mongodb+srv://guddi98922:ipRiFDTRvXEmqSdg@project.uo8weuf.mongodb.net/?retryWrites=true&w=majority&appName=project";
+const localmongo = "mongodb://127.0.0.1:27017/wanderlust";
 main()
 .then(() => {
     console.log("connected to DB")
@@ -37,7 +39,7 @@ console.log(err)
 });
 
 async function main() {
-    await mongoose.connect('mongodb://127.0.0.1:27017/Wandelust')
+    await mongoose.connect(dbUrls);
 }
 
 
@@ -45,9 +47,9 @@ async function main() {
     console.log(`I am listening at port ${port}`)
  });
 
-app.get("/",(req,res) => {
-    res.send("Working")
-});
+// app.get("/",(req,res) => {
+//     res.send("Working")
+// });
 
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname, "views"));
@@ -55,7 +57,20 @@ app.use(express.urlencoded({extended:true}));
 app.use(methodOverride("_method"));
 app.engine('ejs',ejsMate)
 app.use(express.static(path.join(__dirname,"/public")));
+
+
+const store = MongoStore.create({
+    mongoUrl :dbUrls,
+    crypto:{
+        secret: "mysupersecretcode",
+    },
+    touchAfter : 24*3600,
+});
+store.on("error",()=>{
+    console.log("ERROR IN MONGO SESSION STORE");
+})
 const sessionOptions = {
+    store,
     secret:"mysupersecrectcode",
     resave:false,
     saveUninitialized:true,
